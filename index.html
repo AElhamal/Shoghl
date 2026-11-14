@@ -130,7 +130,7 @@ textarea{width:100%;height:150px;border:1px solid var(--bd);border-radius:12px;b
 .tot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:13px;color:var(--mut)}
 .prog{margin-bottom:14px}
 .pt{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:6px}
-.hide{display:none}
+.hide{display:none}.drawer.on .mrow:nth-child(8){transition-delay:.48s}
 .seg.tri{grid-template-columns:1fr 1fr 1fr}.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fbtn{padding:10px 6px;border-radius:12px;background:var(--cell);border:1px solid var(--bd);font-size:15px;font-weight:700;text-align:center}.fbtn.on{background:var(--g1);color:var(--acc-tx)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -288,6 +288,14 @@ textarea{width:100%;height:150px;border:1px solid var(--bd);border-radius:12px;b
   <label>الخط الإنجليزي (الحروف الإنجليزي بس، والعربي بيفضل بخط القاهرة)</label><div class="fgrid" id="fEn"></div>
 </div></div>
 
+<div class="sheet" id="cloudSheet"><div class="panel">
+  <div class="grab"></div>
+  <h2>الحساب والمزامنة</h2>
+  <div class="rules" id="clMsg">جاري التحميل…</div>
+  <button class="go hide" id="clIn">تسجيل الدخول بحساب جوجل</button>
+  <button class="mini hide" id="clOut" style="width:100%;margin-top:10px">تسجيل الخروج</button>
+</div></div>
+
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer">
   <div class="dh"><div class="logo" data-i="factory"></div>حساب الشغل</div>
@@ -299,6 +307,7 @@ textarea{width:100%;height:150px;border:1px solid var(--bd);border-radius:12px;b
     <button class="mrow" id="qCmp"><span class="oi" data-i="chart"></span>مقارنة الشهور<span class="ch" data-i="left"></span></button>
     <button class="mrow" id="qBak"><span class="oi" data-i="save"></span>نسخة احتياطية<span class="ch" data-i="left"></span></button>
     <button class="mrow" id="qLook"><span class="oi" data-i="sun"></span>المظهر والخط<span class="ch" data-i="left"></span></button>
+    <button class="mrow" id="qCloud"><span class="oi" data-i="up"></span>الحساب والمزامنة<span class="ch" data-i="left"></span></button>
   
   </div>
 </aside>
@@ -315,7 +324,7 @@ const IK={w:'check',h:'half',s:'factory',a:'x'};
 let db={days:{},settings:{},adv:{},ot:{},last:{mode:'monthly',rate:150,stRate:75,otRate:0}};
 const advSum=k=>(db.adv[k]||[]).reduce((t,a)=>t+a.amt,0);
 try{const r=localStorage.getItem('shoghl_v1');if(r)db=Object.assign(db,JSON.parse(r))}catch(e){}
-function save(){try{localStorage.setItem('shoghl_v1',JSON.stringify(db))}catch(e){}}
+function save(){db._t=Date.now();try{localStorage.setItem('shoghl_v1',JSON.stringify(db))}catch(e){}window.cloudPush&&window.cloudPush()}
 const now=new Date();let y=now.getFullYear(),m=now.getMonth(),sel=null;
 const key=()=>y+'-'+String(m+1).padStart(2,'0');
 const st=()=>db.settings[key()]||db.last;
@@ -374,7 +383,7 @@ $('saveSet').onclick=()=>{
   $('setSheet').classList.remove('on');render();
 };
 $('setSheet').onclick=e=>{if(e.target===$('setSheet'))$('setSheet').classList.remove('on')};
-['advSheet','sumSheet','cmpSheet','bakSheet','bulkSheet','lookSheet'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target===$(id))$(id).classList.remove('on')}));
+['advSheet','sumSheet','cmpSheet','bakSheet','bulkSheet','lookSheet','cloudSheet'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target===$(id))$(id).classList.remove('on')}));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function calc(k){let w=0,h=0,sp=0,a=0,oh=0;
   for(const d in db.days)if(d.startsWith(k+'-')){const v=db.days[d];if(v==='w')w++;else if(v==='h')h++;else if(v==='s')sp++;else if(v==='a')a++}
@@ -404,10 +413,18 @@ $('lookSheet').addEventListener('click',e=>{const b=e.target.closest('button');i
 $('qLook').onclick=()=>{loadF(GF(FONTS.filter(x=>x[3]).map(x=>x[3])));$('lookSheet').classList.add('on')};
 applyLook(0);
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+window.getDb=()=>db;
+window.setDb=o=>{db=Object.assign({days:{},settings:{},adv:{},ot:{},last:{mode:'monthly',rate:150,stRate:75,otRate:0}},o);try{localStorage.setItem('shoghl_v1',JSON.stringify(db))}catch(e){}render()};
+window.cloudUI=st=>{$('clMsg').textContent=st.msg;$('clIn').classList.toggle('hide',!st.ok||!!st.user);$('clOut').classList.toggle('hide',!st.user)};
+$('qCloud').onclick=()=>$('cloudSheet').classList.add('on');
+$('clIn').onclick=()=>window.cloudSignIn&&window.cloudSignIn();
+$('clOut').onclick=()=>window.cloudSignOut&&window.cloudSignOut();
+cloudUI({ok:false,msg:'جاري التحميل…'});
+import('./cloud.js').catch(()=>cloudUI({ok:false,msg:'السحابة مش متاحة دلوقتي (محتاج نت). التطبيق شغال عادي على الموبايل.'}));
 const dr=on=>{$('drawer').classList.toggle('on',on);$('scrim').classList.toggle('on',on)};
 $('menuBtn').onclick=()=>dr(true);$('scrim').onclick=()=>dr(false);
 $('dAdv').onclick=()=>$('qAdv').click();
-['dAdv','gear','qBulk','qSum','qCmp','qBak','qLook'].forEach(id=>$(id).addEventListener('click',()=>dr(false)));
+['dAdv','gear','qBulk','qSum','qCmp','qBak','qLook','qCloud'].forEach(id=>$(id).addEventListener('click',()=>dr(false)));
 function drawToday(){
   const on=(y===now.getFullYear()&&m===now.getMonth());$('today').classList.toggle('hide',!on);if(!on)return;
   const d=now.getDate(),k=key()+'-'+d,v=db.days[k]||'';

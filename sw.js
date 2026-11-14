@@ -1,5 +1,5 @@
-const V='shoghl-v1';
-const SHELL=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./maskable-512.png','./apple-touch-icon.png','./favicon-32.png'];
+const V='shoghl-v2';
+const SHELL=['./','./index.html','./manifest.json','./cloud.js','./firebase-config.js','./icon-192.png','./icon-512.png','./maskable-512.png','./apple-touch-icon.png','./favicon-32.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
@@ -8,7 +8,7 @@ self.addEventListener('fetch',e=>{
   if(u.origin===location.origin){
     // الملفات بتاعة التطبيق: من النت لو متاح، وإلا من الكاش
     e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(V).then(c=>c.put(r,cp));return res}).catch(()=>caches.match(r).then(m=>m||caches.match('./index.html'))));
-  }else if(/fonts\.(googleapis|gstatic)\.com$/.test(u.hostname)){
+  }else if(/(fonts\.googleapis|fonts\.gstatic|www\.gstatic)\.com$/.test(u.hostname)){
     // الخطوط: من الكاش وبتتحدث في الخلفية
     e.respondWith(caches.open(V).then(c=>c.match(r).then(m=>{const f=fetch(r).then(res=>{c.put(r,res.clone());return res}).catch(()=>m);return m||f})));
   }

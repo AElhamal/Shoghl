@@ -421,6 +421,7 @@ applyLook(0);
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 window.getDb=()=>db;
 window.setDb=o=>{db=Object.assign({days:{},settings:{},adv:{},ot:{},last:{mode:'monthly',rate:150,stRate:75,otRate:0}},o);try{localStorage.setItem('shoghl_v1',JSON.stringify(db))}catch(e){}render()};
+window.resetDb=()=>{db={days:{},settings:{},adv:{},ot:{},last:{mode:'monthly',rate:150,stRate:75,otRate:0}};try{localStorage.removeItem('shoghl_v1')}catch(e){}render()};
 window.cloudUI=st=>{$('clMsg').textContent=st.msg;$('clIn').classList.toggle('hide',!st.ok||!!st.user);$('clOut').classList.toggle('hide',!st.user)};
 $('qCloud').onclick=()=>$('cloudSheet').classList.add('on');
 $('clIn').onclick=()=>window.cloudSignIn&&window.cloudSignIn();

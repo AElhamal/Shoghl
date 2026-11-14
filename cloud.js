@@ -13,7 +13,13 @@ if(!C||!C.apiKey||C.apiKey.startsWith('PASTE')){
     try{const d=window.getDb();d._t=d._t||Date.now();await setDoc(ref,{json:JSON.stringify(d),t:d._t});ok(auth.currentUser,'مسجل بـ '+auth.currentUser.email+'. بياناتك متزامنة ✓')}
     catch(e){ok(auth.currentUser,'مقدرش يحفظ على السحابة دلوقتي. هيحاول تاني لما النت يرجع.')}},1200)};
   window.cloudPush=push;
-  window.cloudSignOut=()=>signOut(auth);
+  window.cloudSignOut=async()=>{
+    const off=!navigator.onLine;
+    if(!confirm(off?'مفيش نت دلوقتي! التعديلات اللي ما اتزامنتش هتضيع. بياناتك المتزامنة قبل كده محفوظة على السحابة. تسجل خروج وتصفّر التطبيق؟':'هتسجل خروج وبيانات التطبيق على الموبايل هتتصفّر. بياناتك محفوظة على السحابة وترجع لما تسجل دخول تاني. تكمل؟'))return;
+    clearTimeout(t);
+    if(ref&&!off)try{const d=window.getDb();d._t=d._t||Date.now();await Promise.race([setDoc(ref,{json:JSON.stringify(d),t:d._t}),new Promise((_,j)=>setTimeout(j,4000))])}catch(e){}
+    ref=null;await signOut(auth);window.resetDb&&window.resetDb();
+  };
   window.cloudSignIn=async()=>{const p=new GoogleAuthProvider();
     try{await signInWithPopup(auth,p)}
     catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')signInWithRedirect(auth,p);else ok(null,'تسجيل الدخول ما تمش، جرب تاني.')}};

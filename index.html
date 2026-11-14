@@ -130,6 +130,7 @@ textarea{width:100%;height:150px;border:1px solid var(--bd);border-radius:12px;b
 .tot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:13px;color:var(--mut)}
 .prog{margin-bottom:14px}
 .pt{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:6px}
+.sub{display:none;gap:6px;padding-inline-start:16px;margin-top:-2px}.sub.on{display:grid}.sub .mrow{padding:8px 12px;font-size:14px;background:none;border:1px solid var(--bd)}.sub.on .mrow{animation:pop .3s ease backwards}.grp .ch{transition:transform .25s}.grp.on .ch{transform:rotate(-90deg)}
 .hide{display:none}.drawer.on .mrow:nth-child(8){transition-delay:.48s}
 .seg.tri{grid-template-columns:1fr 1fr 1fr}.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fbtn{padding:10px 6px;border-radius:12px;background:var(--cell);border:1px solid var(--bd);font-size:15px;font-weight:700;text-align:center}.fbtn.on{background:var(--g1);color:var(--acc-tx)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -301,14 +302,19 @@ textarea{width:100%;height:150px;border:1px solid var(--bd);border-radius:12px;b
   <div class="dh"><div class="logo" data-i="factory"></div>حساب الشغل</div>
   <div class="menu">
     <button class="mrow" id="dAdv"><span class="oi" data-i="wallet"></span>السلف<span class="ch" data-i="left"></span></button>
-    <button class="mrow" id="gear"><span class="oi" data-i="gear"></span>إعدادات الشهر<span class="ch" data-i="left"></span></button>
-    <button class="mrow" id="qBulk"><span class="oi" data-i="cal"></span>تسجيل أيام كتير<span class="ch" data-i="left"></span></button>
-    <button class="mrow" id="qSum"><span class="oi" data-i="doc"></span>ملخص الشهر<span class="ch" data-i="left"></span></button>
-    <button class="mrow" id="qCmp"><span class="oi" data-i="chart"></span>مقارنة الشهور<span class="ch" data-i="left"></span></button>
-    <button class="mrow" id="qBak"><span class="oi" data-i="save"></span>نسخة احتياطية<span class="ch" data-i="left"></span></button>
+    <button class="mrow grp" data-g="m"><span class="oi" data-i="cal"></span>الشهر<span class="ch" data-i="left"></span></button>
+    <div class="sub" id="g-m">
+      <button class="mrow" id="gear">إعدادات الشهر</button>
+      <button class="mrow" id="qBulk">تسجيل أيام كتير</button>
+      <button class="mrow" id="qSum">ملخص الشهر</button>
+      <button class="mrow" id="qCmp">مقارنة الشهور</button>
+    </div>
     <button class="mrow" id="qLook"><span class="oi" data-i="sun"></span>المظهر والخط<span class="ch" data-i="left"></span></button>
-    <button class="mrow" id="qCloud"><span class="oi" data-i="up"></span>الحساب والمزامنة<span class="ch" data-i="left"></span></button>
-  
+    <button class="mrow grp" data-g="d"><span class="oi" data-i="save"></span>البيانات والحساب<span class="ch" data-i="left"></span></button>
+    <div class="sub" id="g-d">
+      <button class="mrow" id="qBak">نسخة احتياطية</button>
+      <button class="mrow" id="qCloud">الحساب والمزامنة</button>
+    </div>
   </div>
 </aside>
 
@@ -421,6 +427,7 @@ $('clIn').onclick=()=>window.cloudSignIn&&window.cloudSignIn();
 $('clOut').onclick=()=>window.cloudSignOut&&window.cloudSignOut();
 cloudUI({ok:false,msg:'جاري التحميل…'});
 import('./cloud.js').catch(()=>cloudUI({ok:false,msg:'السحابة مش متاحة دلوقتي (محتاج نت). التطبيق شغال عادي على الموبايل.'}));
+document.querySelectorAll('.grp').forEach(b=>b.onclick=()=>{const t=$('g-'+b.dataset.g),o=!t.classList.contains('on');document.querySelectorAll('.sub,.grp').forEach(x=>x.classList.remove('on'));t.classList.toggle('on',o);b.classList.toggle('on',o)});
 const dr=on=>{$('drawer').classList.toggle('on',on);$('scrim').classList.toggle('on',on)};
 $('menuBtn').onclick=()=>dr(true);$('scrim').onclick=()=>dr(false);
 $('dAdv').onclick=()=>$('qAdv').click();
